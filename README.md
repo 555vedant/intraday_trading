@@ -16,7 +16,6 @@ This project uses ** NIFTY intraday OHLC data** to build machine learning models
 
 
 
----
 
 
 ## Target Label Generation
@@ -127,8 +126,3 @@ python -m src.main
 
 
 
-
-
-## 📝 License
-
-This project is for educational purposes only.
