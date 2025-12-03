@@ -1,6 +1,6 @@
 # NIFTY Intraday Price Direction Prediction Using Machine Learning
 
-This project uses ** NIFTY intraday OHLC data** to build machine learning models that **predict whether the next candle's closing price will go up or down**. Based on model predictions, **buy/sell trading signals** are generated and a **cumulative Profit & Loss (PnL)** is calculated.
+This project uses **NIFTY intraday OHLC data** to build machine learning models that **predict whether the next candle's closing price will go up or down**. Based on model predictions, **buy/sell trading signals** are generated and a **cumulative Profit & Loss (PnL)** is calculated.
 
 ---
 
@@ -10,7 +10,8 @@ This project uses ** NIFTY intraday OHLC data** to build machine learning models
 - Compare **multiple ML models**  
 - Select the **best performing model**  
 - Generate **automated buy/sell signals**  
-- Simulate **cumulative trading PnL** on test data  
+- Simulate **cumulative trading PnL** on test data
+- I tried improving the model’s accuracy through data preprocessing and feature tuning, but it started overfitting. Although I achieved around  95% accuracy, the F1 score remained low. To address this, I decided to increase the number of features by adding some additional relevant columns.
 
 ---
 
@@ -33,7 +34,6 @@ This converts the problem into a **supervised binary classification task**.
 1. Logistic Regression  
 2. Random Forest  
 3. Gradient Boosting  
-4. Support Vector Machine (SVM)  
 
 The **best model is chosen based on highest Accuracy**.
 
