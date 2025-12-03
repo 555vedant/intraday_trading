@@ -35,7 +35,7 @@ This converts the problem into a **supervised binary classification task**.
 2. Random Forest  
 3. Gradient Boosting  
 
-The **best model is chosen based on highest Accuracy**.
+The **best model is chosen based on highest F1 Score**.
 
 ---
 
