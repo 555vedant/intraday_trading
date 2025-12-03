@@ -2,12 +2,14 @@
 
 import os
 from pprint import pprint
+import numpy as np
 
-from .config import DATA_PATH
+from .config import DATA_PATH, PROBA_THRESHOLD
 from .data_utils import (
     load_data,
     add_technical_features,
     add_target_column,
+    balance_dataset,
     train_test_time_split,
     get_features_and_target,
 )
@@ -18,14 +20,17 @@ from .trading import add_model_call, add_model_pnl
 
 def main():
 
-    print("Loading data...")
+    print("🔹 Loading data...")
     df = load_data(DATA_PATH)
 
-    print("Adding technical features...")
+    print("🔹 Adding technical features...")
     df = add_technical_features(df)
 
-    print(" Creating target...")
+    print("🔹 Creating target...")
     df = add_target_column(df)
+
+    print("🔹 Balancing dataset...")
+    df = balance_dataset(df)
 
     df_train, df_test = train_test_time_split(df)
 
@@ -34,32 +39,39 @@ def main():
 
     models = get_models()
 
-    all_metrics = {}
     best_model = None
     best_name = None
-    best_acc = -1
+    best_score = -1
 
-    print("\nTraining models...\n")
+    print("\n🔹 Training models...\n")
+
     for name, model in models.items():
+
         model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
+
+        proba = model.predict_proba(X_test)[:, 1]
+        y_pred = (proba > PROBA_THRESHOLD).astype(int)
 
         metrics = evaluate_predictions(y_test, y_pred)
-        all_metrics[name] = metrics
+        balanced_score = (
+            metrics["accuracy"] +
+            metrics["precision"] +
+            metrics["recall"] +
+            metrics["f1score"]
+        ) / 4
 
-        pprint(f"{name.upper()} → {metrics}")
+        print(f"{name.upper()} → {metrics}")
 
-        if metrics["accuracy"] > best_acc:
-            best_acc = metrics["accuracy"]
+        if balanced_score > best_score:
+            best_score = balanced_score
             best_model = model
             best_name = name
 
-    print("\nAll Model Metrics:")
-    pprint(all_metrics)
+    print(f"\n Best Balanced Model: {best_name}")
 
-    print(f"\nBest Model: {best_name} | Accuracy: {best_acc:.4f}")
+    proba_best = best_model.predict_proba(X_test)[:, 1]
+    y_pred_best = (proba_best > PROBA_THRESHOLD).astype(int)
 
-    y_pred_best = best_model.predict(X_test)
     df_test = add_model_call(df_test, y_pred_best)
     df_test = add_model_pnl(df_test)
 
@@ -68,7 +80,7 @@ def main():
     df_test.to_csv(output_path, index=False)
 
     print(f"\n Final Output Saved: {output_path}")
-    print("\n Done.")
+    print("\nDone.")
 
 
 if __name__ == "__main__":

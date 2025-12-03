@@ -1,20 +1,13 @@
-# src/data_utils.py
 
 import pandas as pd
 from .config import FEATURE_COLUMNS, TARGET_COLUMN, TRAIN_RATIO
 
 
-def load_data(data_path: str) -> pd.DataFrame:
+def load_data(data_path):
     df = pd.read_csv(data_path)
-
-    # Standardize column names
     df.columns = df.columns.str.strip().str.lower()
-    print("Columns found:", list(df.columns))
 
-    required_cols = ["open", "high", "low", "close"]
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f" Missing column: {col}")
+    print("Columns:", list(df.columns))
 
     if "timestamp" in df.columns:
         df["timestamp"] = pd.to_datetime(df["timestamp"])
@@ -23,7 +16,7 @@ def load_data(data_path: str) -> pd.DataFrame:
     return df
 
 
-def add_technical_features(df: pd.DataFrame) -> pd.DataFrame:
+def add_technical_features(df):
     df = df.copy()
 
     df["return"] = df["close"].pct_change()
@@ -36,27 +29,41 @@ def add_technical_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def add_target_column(df: pd.DataFrame) -> pd.DataFrame:
+def add_target_column(df):
     df = df.copy()
 
-    future_return = (df["close"].shift(-1) - df["close"]) / df["close"]
-    df[TARGET_COLUMN] = (future_return > 0.001).astype(int)
-
+    df[TARGET_COLUMN] = (df["close"].shift(-1) > df["close"]).astype(int)
     df = df.iloc[:-1].reset_index(drop=True)
     return df
 
 
-def train_test_time_split(df: pd.DataFrame):
-    n = len(df)
-    split = int(n * TRAIN_RATIO)
+def balance_dataset(df):
+    df_major = df[df[TARGET_COLUMN] == 0]
+    df_minor = df[df[TARGET_COLUMN] == 1]
 
+    df_major = df_major.sample(
+        n=min(len(df_major), len(df_minor) * 2),
+        random_state=42
+    )
+
+    df_balanced = pd.concat([df_major, df_minor])
+    df_balanced = df_balanced.sample(frac=1, random_state=42).reset_index(drop=True)
+
+    print(" Balanced target distribution:")
+    print(df_balanced[TARGET_COLUMN].value_counts())
+
+    return df_balanced
+
+
+def train_test_time_split(df):
+    split = int(len(df) * TRAIN_RATIO)
     return (
         df.iloc[:split].reset_index(drop=True),
         df.iloc[split:].reset_index(drop=True),
     )
 
 
-def get_features_and_target(df: pd.DataFrame):
+def get_features_and_target(df):
     X = df[FEATURE_COLUMNS].values
     y = df[TARGET_COLUMN].values
     return X, y

@@ -1,10 +1,11 @@
+
 import numpy as np
 
 
 def add_model_call(df_test, y_pred):
     df = df_test.copy()
-    df["Predicted"] = y_pred
-    df["model_call"] = np.where(df["Predicted"] == 1, "buy", "sell")
+    df["predicted"] = y_pred
+    df["model_call"] = np.where(df["predicted"] == 1, "buy", "sell")
     return df
 
 
