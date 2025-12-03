@@ -8,35 +8,37 @@ from sklearn.svm import SVC
 
 
 def get_models():
-    
+
     models = {}
 
-    # 1. logistic regression i added scaling too
     models["logistic_regression"] = Pipeline(
-        steps=[
+        [
             ("scaler", StandardScaler()),
-            ("clf", LogisticRegression(max_iter=1000))
+            ("clf", LogisticRegression(class_weight="balanced", max_iter=1000)),
         ]
     )
 
-    # 2. random forest
     models["random_forest"] = RandomForestClassifier(
-        n_estimators=200,
-        max_depth=None,
+        n_estimators=150,          
+        max_depth=6,
+        min_samples_split=10,
+        min_samples_leaf=5,
+        class_weight="balanced",
         random_state=42,
-        n_jobs=-1
+        n_jobs=-1,
     )
 
-    # 3. gradient boosting
     models["gradient_boosting"] = GradientBoostingClassifier(
-        random_state=42
+        n_estimators=80,           
+        learning_rate=0.05,
+        max_depth=3,
+        random_state=42,
     )
 
-    # 4. SVM + scaling 
     models["svm"] = Pipeline(
-        steps=[
+        [
             ("scaler", StandardScaler()),
-            ("clf", SVC(kernel="rbf", probability=False, random_state=42))
+            ("clf", SVC(kernel="rbf", C=1.5, gamma="scale", class_weight="balanced")),
         ]
     )
 
