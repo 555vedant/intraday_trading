@@ -1,9 +1,8 @@
 
-DATA_PATH = "data/nifty_intraday.csv"  
+DATA_PATH = "data/nifty_intraday.csv"
 
-FEATURE_COLUMNS = ["Open", "High", "Low", "Close"]
+FEATURE_COLUMNS = ["open", "high", "low", "close"]
 TARGET_COLUMN = "target"
 
-TRAIN_RATIO = 0.7  # 70% train, 30% test
-
-RANDOM_STATE = 42  # for reproducibility
+TRAIN_RATIO = 0.7
+RANDOM_STATE = 42
